@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime   @default(now())
+  boards      Board[]
+  taskTypes   TaskType[]
+}
+
+model Board {
+  id        Int      @id @default(autoincrement())
+  projectId Int
+  name      String
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  lanes     Lane[]
+  tasks     Task[]
+}
+
+model Lane {
+  id      Int    @id @default(autoincrement())
+  boardId Int
+  name    String
+  order   Int
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks   Task[]
+}
+
+model TaskType {
+  id        Int       @id @default(autoincrement())
+  projectId Int
+  name      String
+  deletedAt DateTime?
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+
+  @@unique([projectId, name])
+}
+
+model Task {
+  id          Int       @id @default(autoincrement())
+  laneId      Int
+  boardId     Int
+  title       String
+  description String?
+  typeId      Int
+  order       Int
+  createdAt   DateTime  @default(now())
+  lane        Lane      @relation(fields: [laneId], references: [id], onDelete: Cascade)
+  board       Board     @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  type        TaskType  @relation(fields: [typeId], references: [id])
+  subtasks    Subtask[]
+}
+
+model Subtask {
+  id        Int     @id @default(autoincrement())
+  taskId    Int
+  title     String
+  completed Boolean @default(false)
+  task      Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
