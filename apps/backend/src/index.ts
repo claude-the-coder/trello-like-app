@@ -5,6 +5,7 @@ import boardsRouter from "./routes/boards.js";
 import lanesRouter from "./routes/lanes.js";
 import lanesCrudRouter from "./routes/lanesCrud.js";
 import { projectTaskTypesRouter, taskTypesCrudRouter } from "./routes/taskTypes.js";
+import { boardTasksRouter, tasksCrudRouter } from "./routes/tasks.js";
 
 export const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,8 +20,10 @@ app.get("/health", (_req, res) => {
 app.use("/projects", projectsRouter);
 app.use("/projects", projectTaskTypesRouter);
 app.use("/boards", lanesRouter);
+app.use("/boards", boardTasksRouter);
 app.use("/boards", boardsRouter);
 app.use("/lanes", lanesCrudRouter);
+app.use("/tasks", tasksCrudRouter);
 app.use("/task-types", taskTypesCrudRouter);
 
 if (process.env.NODE_ENV !== "test") {
