@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -100,9 +100,12 @@ export default function BoardViewPage() {
     onSettled: () => queryClient.invalidateQueries({ queryKey: lanesKey }),
   });
 
+  const preDragLanesRef = useRef<Lane[]>(lanes);
+
   const handleDragStart = useCallback((event: DragStartEvent) => {
+    preDragLanesRef.current = lanes;
     setActiveId(event.active.id as string);
-  }, []);
+  }, [lanes]);
 
   const handleDragOver = useCallback(
     (event: DragOverEvent) => {
@@ -199,7 +202,8 @@ export default function BoardViewPage() {
 
       if (targetLaneId == null) return;
 
-      const origTask = lanes
+      const preDragLanes = preDragLanesRef.current;
+      const origTask = preDragLanes
         .flatMap((l) => l.tasks)
         .find((t) => t.id === activeTaskId);
 
@@ -207,18 +211,16 @@ export default function BoardViewPage() {
         return;
       }
 
-      const prevLanes = lanes;
-
       moveTask.mutate(
         { taskId: activeTaskId, laneId: targetLaneId, order: targetOrder },
         {
           onError: () => {
-            queryClient.setQueryData(lanesKey, prevLanes);
+            queryClient.setQueryData(lanesKey, preDragLanes);
           },
         }
       );
     },
-    [lanesKey, queryClient, lanes, moveTask]
+    [lanesKey, queryClient, moveTask]
   );
 
   if (lanesLoading) {

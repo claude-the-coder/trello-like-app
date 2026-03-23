@@ -6,24 +6,32 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: mytrello
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
 
   app:
     build: ./apps/backend
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       PORT: "3000"
       DATABASE_URL: "postgresql://postgres:postgres@db:5432/mytrello?schema=public"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   web:
     build: ./apps/web
     ports:
       - "5173:5173"
+    environment:
+      API_URL: "http://app:3000"
     depends_on:
       - app
 
