@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastProvider } from "./components/Toast";
 import ProjectListPage from "./pages/ProjectListPage";
 import BoardViewPage from "./pages/BoardViewPage";
 
@@ -16,15 +17,17 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<ProjectListPage />} />
-          <Route
-            path="/projects/:id/boards/:boardId"
-            element={<BoardViewPage />}
-          />
-        </Routes>
-      </BrowserRouter>
+      <ToastProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<ProjectListPage />} />
+            <Route
+              path="/projects/:id/boards/:boardId"
+              element={<BoardViewPage />}
+            />
+          </Routes>
+        </BrowserRouter>
+      </ToastProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
