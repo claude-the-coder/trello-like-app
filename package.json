@@ -1,0 +1,8 @@
+{
+  "name": "trello-like-app",
+  "private": true,
+  "workspaces": [
+    "apps/backend",
+    "apps/web"
+  ]
+}
